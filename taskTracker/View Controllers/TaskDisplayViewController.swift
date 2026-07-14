@@ -34,16 +34,20 @@ class TaskDisplayViewController: UIViewController {
     
     
     @IBAction func btnSort(_ sender: Any) {
-    }
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+        
+//        var sortBy:String = ""
+//        
+//        if segSortBy.selectedSegmentIndex == 0 {
+//            sortBy = "Category"
+//        }
+//        
+//        // else if input of sorting by rego was slected, then the is will be sorted by rego
+//        else {
+//            sortBy = "Due Date"
+//
+//            
+//        }
+//    
+  }
 
 }

@@ -17,4 +17,17 @@ class HomepageViewController: UIViewController {
     //MARK: INTERFACE CONTROLS
     
     //Outputs
+    
+    @IBOutlet weak var lblMessage1: UILabel!
+    
+    
+    @IBOutlet weak var lblMessage2: UILabel!
+    
+    
+    
+    @IBOutlet weak var lblMessage3: UILabel!
+    
+    
+    @IBOutlet weak var lblMessage4: UILabel!
+    
 }
