@@ -21,13 +21,16 @@ class SearchTaskViewController: UIViewController {
     
     @IBOutlet weak var srhTask: UISearchBar!
     
-    //Outputs
+    //Output
     
-    @IBOutlet weak var lblResults: SearchTaskViewController!
+    
     
     //Funtions
     
+    @IBOutlet weak var tblResults: SearchTaskViewController!
     
     @IBAction func btnSearch(_ sender: Any) {
     }
+    
+    
 }
