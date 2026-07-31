@@ -26,6 +26,18 @@ class AlertsViewController: UIViewController {
     @IBOutlet weak var lblMessage: UILabel!
     
     
+    //display alert when a task is deteced to be due soon
+    func alert(message: String, position: Int? = -1) {
+        // Alert code
+        let alert = UIAlertController(title: "Title goes here", message: "Message goes here", preferredStyle: .alert)
+        let yesButton = UIAlertAction(title: "Yes", style: .default) { action in
+            //code goes here
+        }
+        let noButton = UIAlertAction(title: "No", style: .default)
+        alert.addAction(yesButton)
+        alert.addAction(noButton)
+        self.present(alert, animated: true, completion: nil)
+    }
     
 
 }

@@ -11,13 +11,13 @@
  Will search values when called through ...
  */
 
-func linearSearch(array: [String], searchFor: String) -> Bool {
-   for currentValue in array {
-      if searchFor == currentValue {
-         return true
+func linearSearch(array: [String], searchFor: String) -> Int {
+    for i in 0...(array.count - 1) {
+      if searchFor == array[i] {
+          return i
       }
    }
-   return false
+   return -1
 }
 
 /*
@@ -29,23 +29,23 @@ func linearSearch(array: [String], searchFor: String) -> Bool {
  */
 
 
-//func binarySearch(array: [Int], searchFor: Int) ->  Int {
-//    var firstIndex = 0
-//    var lastIndex = array.count - 1
-//    
-//    while firstIndex <= lastIndex {
-//        let middleIndex = (firstIndex + lastIndex) / 2
-//        if array[middleIndex] == searchFor {
-//            return middleIndex
-//        }
-//        if searchFor < array[middleIndex] {
-//            lastIndex = middleIndex - 1
-//        }
-//        if searchFor > array[middleIndex] {
-//            firstIndex = middleIndex + 1
-//        }
-//    }
-//    return 0
-//}
+func binarySearch(array: [Int], searchFor: Int) ->  Int {
+    var firstIndex = 0
+    var lastIndex = array.count - 1
+    
+    while firstIndex <= lastIndex {
+        let middleIndex = (firstIndex + lastIndex) / 2
+        if array[middleIndex] == searchFor {
+            return middleIndex
+        }
+        if searchFor < array[middleIndex] {
+            lastIndex = middleIndex - 1
+        }
+        if searchFor > array[middleIndex] {
+            firstIndex = middleIndex + 1
+        }
+    }
+    return 0
+}
 
  

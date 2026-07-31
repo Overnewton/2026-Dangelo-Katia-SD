@@ -23,9 +23,11 @@ class CreatingTasksViewController: UIViewController {
         
         
         /*
-         The following code was created from following a tutorial on youtube. Was used as i was undersure how to use/code a picker on my interfcae
-         
-         Link to video:
+          SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+          WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+          MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
          */
         
         print(" Task view Contorle see: \(TaskManager.shared.categories)" )
@@ -41,8 +43,16 @@ class CreatingTasksViewController: UIViewController {
             )
         
     }
+    
+    /*
+      SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+      WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+      MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
+     */
+    
     @objc func categoriesChanged() {
-        print("Notification received")
         print("Categories now: \(TaskManager.shared.categories)")
 
         pvCategory.reloadAllComponents()
@@ -56,6 +66,15 @@ class CreatingTasksViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
+    
+    /*
+      SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+      WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+      MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
+     */
+    
     func refreshCategoryPicker() {
         print("Refreshing picker: \(TaskManager.shared.categories)")
 
@@ -66,24 +85,19 @@ class CreatingTasksViewController: UIViewController {
         }
     }
     
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        
-//        print("Reloaded picker with categories: \(TaskManager.shared.categories)")
-//        print("viewWillAppear called")
-//        print("Categories: \(TaskManager.shared.categories)")
-//
-//        
-//        pvCategory.reloadAllComponents()
-//        
-//    }
-//
+    /*
+      SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+      WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+      MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
+     */
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
        
         print("viewWillAppear")
-        print("Categories in Tasks VC: \(TaskManager.shared.categories)")
         print("Categories: \(TaskManager.shared.categories)")
 
         pvCategory.reloadAllComponents()
@@ -128,19 +142,12 @@ class CreatingTasksViewController: UIViewController {
                 
                 print("Txtname is valid")
                 
-//                var taskName:String = txtName.text
                 
                 //date range check. Checks if the date inputted is greater than or equal to current date.
                 if dteDueDate.date  >= Date() {
                     
                     print("dteDueDate is valid")
-                    
-//                    var dueDate:Date = dteDueDate.text
-//                    
-//                    var taskNote:String = txtNotes.text
-//                    
-//                    var Category:String = pvCategory.text
-//                    
+                                       
                     
                     lblValidationMessage.text = "All input is good"
                     lblValidationMessage.textColor = .systemGreen
@@ -189,17 +196,49 @@ class CreatingTasksViewController: UIViewController {
             
         }
         
+        //TODO: SOURCE CODE
+        
+        //Save the date from date picker as a Date type object
+        let selectedDate : Date = dteDueDate.date
+    
+        
+        //Stores a number that counts the amount of time between 2 dates as seconds; converts it to an Int for easier calculations
+        //This can be used to calculate the amount of days/hours etc later on
+        let timeDifference = selectedDate.timeIntervalSince(currentDate)
+        
+        let timeDiffInt = Int(timeDifference)
+        
+        
+        //OPTION 1: Manually calculate the difference in time by dividing the amount of seconds by 86400 for days
+        
+        let daysAmount = timeDiffInt / 86400
+      
+        
+       print("Debug for manual time conversion")
+        print("The difference in time is:\n \(daysAmount)")
+        
     }
 }
 
 // TODO: SOUCrE YUOUTUBE USe for picker
+
 /*
- The following code was created from following a tutorial on youtube. Was used as i was undersure how to use/code a picker on my interfcae
- 
- Link to video:
- 
- However, while the coide base came from youtuve, the change to line 133, 137, 144 was changed and done wihout any externals sources so I can use my varaible array that keeps getting values added or removed to it rather than just have a set constant array like the video. I had to add the count and array name myself.
+  SOURCE:
+
+  WHY: Needed to know how to create a UI picker
+
+  MODIFIED: copyied the instruion to cerate the basic of this code
  */
+
+
+/*
+  SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+  WHY: Needed help to create mget my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+  MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
+ */
+
 
 extension CreatingTasksViewController: UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -209,12 +248,8 @@ extension CreatingTasksViewController: UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         
         let count = TaskManager.shared.categories.count
-                print("Picker count = \(count)")
                 return count
         
-//        print("Rows requested")
-//
-//        return TaskManager.shared.categories.count
     }
 }
 
