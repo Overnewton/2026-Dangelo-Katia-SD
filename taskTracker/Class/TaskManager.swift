@@ -15,12 +15,22 @@
 
 
 /*
- following code came from chat gdp. need to source
- */
+ TaskManager Class: A class storing the catergoires array allowing it to be used over mutiple interfaces
+ 
+ Properties:
+ - TaskManager(): static - shared over the interfaces
+ - categories: array - stores the caterogy of a task based on the Category object
+
+*/
+
+
 class TaskManager {
 
     static let shared = TaskManager()
 
-    var categories: [String] = []
+    //array of the Category object
+    //array choosen as data type as needs to store lots of data
+    //public access modifers choosen for data members as they need to be able to be accessed and modified from anywhere in the app
+    public var categories: [Category] = []
 
 }

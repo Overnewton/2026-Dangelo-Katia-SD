@@ -10,16 +10,53 @@
 
 import UIKit
 
+/*
+  SOURCE: https://youtu.be/EsheQe6U_WE?si=s7YdURteHmBZj5Sa
+
+  WHY: Used youtube to knwo how to use a UIPciker as never learnt in class.
+
+  MODIFIED: Modified their example of their own arrays for the Picker to adapt it for my code's purpose.
+ */
+
+//Array is used to store all of the colours the tableview indexField row can do. Used to support UIPICKER code
+let colours: [UIColor] = [
+    .systemBlue,
+    .systemRed,
+    .systemGreen,
+    .systemOrange,
+    .systemPurple
+]
+
+//Araay is used to list all the colour options. It it used to support UIPICKER code
+let colourNames = [
+    "Blue",
+    "Red",
+    "Green",
+    "Orange",
+    "Purple"
+]
+
 
 class CreatingCategoryViewController: UIViewController {
 
     
+    var selectedColour = UIColor.systemBlue
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Do any additional setup after loading the view.
+        /*
+          SOURCE: https://youtu.be/EsheQe6U_WE?si=s7YdURteHmBZj5Sa
+
+          WHY: Used youtube to know how to use a UIPciker as never learnt in class.
+
+          MODIFIED: Copided the pvColour self codes from video
+         */
         
-    
+        pvColour.delegate = self
+        pvColour.dataSource = self
+        
+      
     }
     
     
@@ -28,42 +65,53 @@ class CreatingCategoryViewController: UIViewController {
     
     //Input
     
+    @IBOutlet weak var pvColour: UIPickerView!
     @IBOutlet weak var txtCategory: UITextField!
     
     //Output
     
     @IBOutlet weak var lblCeatingCategoryMessage: UILabel!
     
-    //Functions
+    //MARK: Functions
     
-    //alert to pop up
-    func alertPopUp(message:String) {
+    /*
+    alert to pop up on screen. When called, the alert will have a title and message and allow user to either press yes or no to that message
+     
+     Parameters:
+     - title: String of the title requested for alert
+     - message: String of the message requested for alert
+     
+     Returns:
+     - When either the yes or no button is pressed, the addAction function is called
+     */
+
+    
+    func alertPopUp(title: String, message:String) {
         let alert = UIAlertController(title: "Title goes here", message: "Message goes here", preferredStyle: .alert)
+        
+        //if yes is pressed,another function is called
         let yesButton = UIAlertAction(title: "Yes", style: .default) { action in
-            //code goes here
+            alert.addAction(yesButton)
         }
+        
+        //if no is pressed, another function is called
         let noButton = UIAlertAction(title: "No", style: .default)
-        alert.addAction(yesButton)
         alert.addAction(noButton)
         self.present(alert, animated: true, completion: nil)
     }
     
     /*
-     button function: add category to array
-     
-     Returns:
-     - When button is pressed, the category is validated, then added to array, then message appears to let user know. Also update the creatingtaskViewController
+     Button add function: When add category is presse, the category is validated, then added to array if passes, then creates message to appears to let user know. Also update the creatingtaskViewController
      */
 
     
     @IBAction func btnAddCategory(_ sender: Any) {
         
-        
-        
         /*
          categoryValidation func: validates all values inputted in the new category text filed
+         
          Returns:
-         - The category is added to the categories array
+         - Bool: True or false on if validation was passed.
          */
         
         func categoryValidation() -> Bool {
@@ -71,15 +119,17 @@ class CreatingCategoryViewController: UIViewController {
             // category existence check
             if txtCategory.text != "" {
                 
-                
+                //test message
                 print("Validation of cateogry is good")
                 
+                //if input is not emtpy, then it passes validation
                 return true
                 
                 
             }
             
             else {
+                //message is displayed to user letting them know the issue on why validation failed
                 lblCeatingCategoryMessage.textColor = .systemRed
                 lblCeatingCategoryMessage.text = "Please enter a category"
                 return false
@@ -88,19 +138,24 @@ class CreatingCategoryViewController: UIViewController {
             
         }
         
-        
+        // if statement to search if category already exists, if it passed the validation
         if categoryValidation() == true {
             
+            
+            // had to edit this line after changing array name/type
             //search function called to see if input already exist of category inside category array
             let searchResponse = linearSearch(array: TaskManager.shared.categories, searchFor: txtCategory.text!)
             
-            // if the search returned false, then category is to array
-            if searchResponse <= 0 {
+            // if the search returned false, then new object is created in the Category class with both the colour and name the user inputted
+            if searchResponse == false {
                 
-                //creating variable
-                let newCategory: String = txtCategory.text!
+                let newCategory = Category(
+                    name: txtCategory.text!,
+                    colour: selectedColour
+                )
                 
                 //TODO: SORT IN ALBETICAL ORDER for categories
+                //ran out of time
                 
                 
                 /*
@@ -108,32 +163,46 @@ class CreatingCategoryViewController: UIViewController {
 
                   WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
 
-                  MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
+                  MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class. Then I used the new name to replace/update all code calling/using array
                  */
                 
-                //append to the array
+                //appending the newly created object to the categories array
                 TaskManager.shared.categories.append(newCategory)
                 
-                print("AFTER APPEND: \(TaskManager.shared.categories)")
                 
-                // Notify the Tasks screen to update its picker/
+                //testing statemnt to test if the correct thing was being added to array and to also see if the TaskManager.shared.categories was making/being what i wanted.
+                print("After adding task to array: \(TaskManager.shared.categories)")
+                
+                /*
+                  SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+                  WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+                  MODIFIED:Copied the next lines of code from AI (line 168-177)
+                 */
+                
+                // Notify the creating Tasks view controller screen to update its picker
                 NotificationCenter.default.post(
                     name: Notification.Name("categoriesChanged"),
                     object: nil
                 )
                 
-                // Wait 5 seconds before closing the screen
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                // code to close view controller after adding new tasks to enusre that the user is going back into the orginal creating tasks view controller and not another one to ensure that the picker updates
+                
+                // Wait 3 seconds before closing the screen
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                         self.dismiss(animated: true)
                     }
                 
+                //message to be displayed to user letting them know of outcome
                 lblCeatingCategoryMessage.text = "You have the following categories: \(TaskManager.shared.categories)"
                 
             }
             else {
-                
+                //testing
                 print("No category added to array. Found duplicate")
                 
+                //message to be displayed to user letting them know of outcome
                 lblCeatingCategoryMessage.text = "The category you entered already exists. These are all the categories you currently have: \(TaskManager.shared.categories)"
                 
             }
@@ -142,37 +211,99 @@ class CreatingCategoryViewController: UIViewController {
         
         
     }
+    
+    /*
+     Function: Button for delete one category. The vcategory that the user types in the textfiled, will be deleted from array and  display a message to user.
+     */
+
             
 @IBAction func btnDeleteCategory(_ sender: Any) {
     
-    var category = txtCategory.text!
-    
-    //retunr undex for search to know which to delete
-    
 
-
-    
-    lblCeatingCategoryMessage.text = "\(txtCategory.text!) has been deleted as a category. Here is your updated category list: \(TaskManager.shared.categories)"
-    
-
-   
-    
-    
-    
+    // existance check to see if a category was entered in the text feild
+    if txtCategory.text != "" {
+        
+        //data type check
+        if String(txtCategory.text!) != nil {
+            
+            let categoryToDelete = txtCategory.text!
+            
+            
+            /*
+             SOURCE: https://chatgpt.com/s/t_6a6f433a4fd08191bafbb34891b065b8
+             
+             WHY: Needed help with deleting the category thr user has typed. Tried getting help from teacher and creating own method bsed on his advice but didn;t work. So in asked chat gdp to adapt my code i wrote to correctly work.
+             
+             MODIFIED:Copied line 228 and 229 and then added/ adpated my own code
+             */
+            
+            
+            // Find the the inputted category's index in the array so we now what index to delete
+            if let categoryIndex = TaskManager.shared.categories.firstIndex(
+                where: { $0.name.lowercased() == categoryToDelete.lowercased() }
+            ) {
+                
+                // Delete the category at that index found
+                TaskManager.shared.categories.remove(at: categoryIndex)
+                
+                //messages displayed to user letting them know of progress
+                lblCeatingCategoryMessage.textColor = .systemGreen
+                lblCeatingCategoryMessage.text =
+                "\(categoryToDelete) has been deleted. Here is your updated categories: \(TaskManager.shared.categories)"
+                
+                //clearing input feild
+                txtCategory.text = ""
+                
+                /*
+                 SOURCE: https://chatgpt.com/s/t_6a6f433a4fd08191bafbb34891b065b8
+                 
+                 WHY: Needed help with deleting the category thr user has typed. Tried getting help from teacher and creating own method bsed on his advice but didn;t work. So in asked chat gdp to adapt my code i wrote to correctly work.
+                 
+                 MODIFIED:Copied line 251 to 254 and then added/ adpated my own code
+                 */
+                
+                
+                // Tell the picker to reload
+                NotificationCenter.default.post(
+                    name: Notification.Name("categoriesChanged"),
+                    object: nil
+                )
+                
+                let deleteInputValidation: Bool = true
+                
+            } else {
+                
+                lblCeatingCategoryMessage.textColor = .systemRed
+                lblCeatingCategoryMessage.text =
+                "\(categoryToDelete) was not found. Here are your current categories: \(TaskManager.shared.categories)"
+            }
+            
+        }
+        
+        else {
+            lblCeatingCategoryMessage.textColor = .systemRed
+            lblCeatingCategoryMessage.text = "Please enter a category to delete."
+        }
+    }
+        
+        else {
+            lblCeatingCategoryMessage.textColor = .systemRed
+            lblCeatingCategoryMessage.text = "Please enter a category to delete."
+        }
     
 }
             
     /*
-     button function: deletes all categories in array
+     button function: check to see if user actually meant to press the button and is so, it then deletes all categories in array
      
      Returns:
-     - emty array
-     -
+     - empty array
      */
             
             @IBAction func btnDeleteAll(_ sender: Any) {
                 
-                alertPopUp(message:"Are you sure you want to delete all your categories?")
+                //alertPopup func is called to make alert to user
+                alertPopUp(title: "Request to delete all categories", message:"Are you sure you want to delete all your categories?")
                 
                 txtCategory.text = ""
                 lblCeatingCategoryMessage.text = "All categories have been deleted. Please enter new categories"
@@ -185,7 +316,7 @@ class CreatingCategoryViewController: UIViewController {
                   MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
                  */
                 
-                //emtey array
+                //emptied array
                 TaskManager.shared.categories = []
                 
                 // Notify the Tasks screen to update its picker
@@ -193,13 +324,107 @@ class CreatingCategoryViewController: UIViewController {
                        name: Notification.Name("categoriesChanged"),
                        object: nil
                    )
+                // code to close view controller after adding new tasks to enusre that the user is going back into the orginal creating tasks view controller and not another one to ensure that the picker updates
                 
-                // Wait 5 seconds before closing the screen
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                
+                // Wait 3 seconds before closing the screen
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                         self.dismiss(animated: true)
                     }
                 
             }
         
    
+}
+
+/*
+  SOURCE: https://chatgpt.com/share/6a6beb4c-35a4-83ec-8724-ba3a71809efd
+
+  WHY: Needed help to get my picker UI working when a category array is updated on another interface, for the task interfcae tio update and the dispay the updated category array as options.
+
+  MODIFIED:Used the AI class code and juts moved the creation of the array from the creating task categoruies to the class
+ */
+
+/*
+  SOURCE: https://youtu.be/EsheQe6U_WE?si=s7YdURteHmBZj5Sa
+
+  WHY: Used youtube to knwo how to use a UIPciker as never learnt in class.
+
+  MODIFIED: Modified their example of their own arrays for the Picker to adapt it for my code's purpose.
+ */
+
+
+//MARK: UIPicker CODE
+
+//extension becuase it is out of class and not defined in class
+
+extension CreatingCategoryViewController: UIPickerViewDataSource {
+    
+    /*
+     code to choose how many compoments/rows is needed for picker
+     
+     Parameters:
+     - in pickerView: checking/searching the pickerView
+     
+     Returns:
+     - Int: Number of compented needed
+     */
+
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    /*
+     code to see how many rows of picker is needed based on number of data in array
+     
+     Parameters:
+     - pickerView: seeing which pickerView to check/search
+     -numberOfRowsInComponent: the retuned int of components
+     
+     Returns:
+     - Int: Number of coloums needed for picker
+     */
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        
+        let count = colours.count
+                return count
+        
+    }
+}
+
+//extension becuase it is out of class and not defined in class
+
+extension CreatingCategoryViewController: UIPickerViewDelegate {
+    
+    //code to state what will display in picker
+    
+    func pickerView(_ pickerView: UIPickerView,didSelectRow row: Int, inComponent component: Int) {
+        
+        /*
+          SOURCE:
+
+          WHY: needed chat gdps help make the picker connect to the colour choosen for category.
+          MODIFIED: Used line 346
+         */
+        
+        selectedColour = colours[row]
+    }
+    
+    /*
+     code to say what text/data actually goes in picker
+     
+     Parameters:
+     - pickerView: seeing which pickerView to check/search
+     -numberOfRowsInComponent: the retuned int of components
+     - titleForRow: The retunred Int of the Number of coloums needed
+     
+     Returns:
+     - String: What text goes in the actual picker for user to choose
+     */
+    func pickerView(_ pickerView: UIPickerView,titleForRow row: Int, forComponent component: Int) -> String? {
+        
+        return colourNames[row]
+    }
 }
