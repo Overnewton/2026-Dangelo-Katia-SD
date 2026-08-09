@@ -11,8 +11,32 @@ import UIKit
 
 var dueAlerts: [NewTask] = []
 
+class TaskTableViewCell: UITableViewCell {
+    
+    @IBOutlet weak var lblDueDate: UILabel!
+        @IBOutlet weak var lblCategory: UILabel!
+     
+    @IBOutlet weak var lblTaskNote: UILabel!
+    
+    @IBOutlet weak var lblTaskName: UILabel!
+}
+
+
 class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableViewDataSource  {
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        tblDisplay.delegate = self
+        tblDisplay.dataSource = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        tblDisplay.reloadData()
+        dueSoon()
+    }
     
     // MARK: INTERFACE Controls
     
@@ -65,14 +89,46 @@ class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableV
      - UITableViewCell; trtuns a cell for the tableview
      */
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
 
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "cell",
+            for: indexPath
+        ) as! TaskTableViewCell
 
-           let task = tasks[indexPath.row]
+        let task = tasks[indexPath.row]
 
-           cell.textLabel?.text = task.mainDetails()
+        // Task name
+        cell.lblTaskName.text = task.taskName
 
+        // Category
+        cell.lblCategory.text = task.category.name
+
+        // Task note
+        if task.taskNote.isEmpty {
+            cell.lblTaskNote.text = "n/a"
+        } else {
+            cell.lblTaskNote.text = task.taskNote
+        }
+
+        // Due date
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+
+        cell.lblDueDate.text = formatter.string(
+            from: task.dueDate
+            
+        )
+        
+        //colout whole row
+        cell.contentView.backgroundColor = task.category.colour
+        
+        return cell
+    }
+            
         /*
            SOURCE: https://chatgpt.com/share/6a6f3102-bda8-83ec-a258-8c47e075f346
 
@@ -81,15 +137,15 @@ class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableV
            MODIFIED: used code from chat gdp
          
          */
-        
-           cell.imageView?.image = UIImage(systemName: "circle.fill")?.withTintColor(
-            task.category.colour,
-               renderingMode: .alwaysOriginal
-           )
+//        
+//           cell.imageView?.image = UIImage(systemName: "circle.fill")?.withTintColor(
+//            task.category.colour,
+//               renderingMode: .alwaysOriginal
+//           )
 
-           return cell
+//           return cell
 
-    }
+    
     
     
     /*
@@ -103,28 +159,16 @@ class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableV
      */
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        
-        //if indexPath row was swiped then delete the indexPath row
-        if editingStyle == .delete {
-              
-            /*
-             function: alert to double check
-             
-             parametrs:
-             - message: what the alert says
-             - position: where the alert goes
-             
-             */
-            
-            alert(message: "Are you sure you want to delete this task?", position: indexPath.row)
-            numtasks -= 1
-            
-            //adapted from other alerts codes i had. If said yes, the posiiton of the tasked swiped to deleted is recorded in which it's indexPath.row is marked as completed and on wht date
-            alertCompleted(message: "Have you completed this task?", position: indexPath.row)
-            tasks[indexPath.row].isCompleted = true
-            tasks[indexPath.row].completedDate = Date()
-          }
-      }
+       
+            if editingStyle == .delete {
+
+                alertCompleted(
+                    message: "Have you completed this task?",
+                    position: indexPath.row
+                )
+            }
+        }
+
     
     // funtion: button to clear all tasks displayed and in array
     @IBAction func btnClearAll(_ sender: Any) {
@@ -155,15 +199,7 @@ class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableV
     
   }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        
-        //Tableview set up
-        tblDisplay.delegate = self
-        tblDisplay.dataSource = self
-        
-    }
+   
     
     //MARK: ALERTS
     
@@ -220,36 +256,65 @@ class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableV
     
     func alertCompleted(message: String, position: Int? = nil) {
         
-        let alert = UIAlertController(title: "Warning", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Warning",
+            message: message,
+            preferredStyle: .alert
+        )
         
-        //MARK: SOURCE CHAT GDP
-        
-            let yesAction = UIAlertAction(title: "Yes", style: .default) { _ in
-
-                if let position = position {
-
-                    tasks[position].isCompleted = true
-                    tasks[position].completedDate = Date()
-
-                    self.tblDisplay.reloadData()
-
-                    self.alertPopup(
-                        message: "Task completed successfully"
-                    )
-                }
+        let yesAction = UIAlertAction(title: "Yes", style: .default) { _ in
+            
+            if let position = position {
+                
+                // Mark task as completed
+                tasks[position].isCompleted = true
+                tasks[position].completedDate = Date()
+                
+                // Save task in completed tasks
+                completedTasks.append(tasks[position])
+                
+                // Remove task from active tasks
+                tasks.remove(at: position)
+                
+                self.tblDisplay.reloadData()
+                
+                self.alertPopup(
+                    message: "Task completed successfully"
+                )
             }
-
-            let noButton = UIAlertAction(
-                title: "No",
-                style: .cancel
-            )
-
-            alert.addAction(yesAction)
-            alert.addAction(noButton)
-
-            present(alert, animated: true)
         }
-
+        
+        
+        let noAction = UIAlertAction(title: "No", style: .destructive) { _ in
+            
+            if let position = position {
+                
+                // Delete task without completing it
+                tasks.remove(at: position)
+                
+                self.tblDisplay.reloadData()
+                
+                self.alertPopup(
+                    message: "Task deleted successfully"
+                )
+            }
+        }
+        
+        
+        let cancelAction = UIAlertAction(
+            title: "Cancel",
+            style: .cancel
+        )
+        
+        
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+        
+    } 
+        
     /**
      Displays a temporary success message.
      */
@@ -294,32 +359,55 @@ class TaskDisplayViewController: UIViewController, UITableViewDelegate, UITableV
         present(alert, animated: true)
     }
     
-    func dueSoon() {
-
-        dueAlerts.removeAll()
-
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-
-        for newTask in tasks {
-
-            let dueDate = calendar.startOfDay(for: newTask.dueDate)
-
-            let daysAmount = calendar.dateComponents(
-                [.day],
-                from: today,
-                to: dueDate
-            ).day ?? 0
-
-            if daysAmount == 2 {
-
-                dueAlerts.append(newTask)
-
-                alertDue(
-                    title: "Due soon!",
-                    message: "You have \(newTask.taskName) due on \(newTask.dueDate)."
-                )
+            
+            func dueSoon() {
+                
+                // Clear old due alerts
+                dueAlerts.removeAll()
+                
+                let calendar = Calendar.current
+                let today = calendar.startOfDay(for: Date())
+                
+                // Text that will contain all tasks due soon
+                var dueMessage = ""
+                
+                // Check every task
+                for newTask in tasks {
+                    
+                    let dueDate = calendar.startOfDay(for: newTask.dueDate)
+                    
+                    let daysAmount = calendar.dateComponents(
+                        [.day],
+                        from: today,
+                        to: dueDate
+                    ).day ?? 0
+                    
+                    // Due today, tomorrow or in 2 days
+                    if daysAmount >= 0 && daysAmount <= 2 {
+                        
+                        dueAlerts.append(newTask)
+                        
+                        // Australian date
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.locale = Locale(identifier: "en_AU")
+                        dateFormatter.dateFormat = "dd MMMM yyyy"
+                        
+                        let formattedDate = dateFormatter.string(
+                            from: newTask.dueDate
+                        )
+                        
+                        // Add each task to the SAME message
+                        dueMessage += "\(newTask.taskName) — \(formattedDate)\n"
+                    }
+                }
+                
+                // Only show alert if there are tasks due soon
+                if !dueAlerts.isEmpty {
+                    
+                    alertDue(
+                        title: "Due soon!",
+                        message: dueMessage
+                    )
+                }
             }
-        }
-    }
 }

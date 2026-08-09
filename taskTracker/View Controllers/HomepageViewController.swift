@@ -22,13 +22,21 @@ var tasksDoneDay: Int = 0
 var tasksDoneWeek: Int = 0
 
 
+var completedTasks: [NewTask] = []
+
+
 class HomepageViewController: UIViewController {
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //call funtion
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         taskStatistics()
     }
     
@@ -47,91 +55,177 @@ class HomepageViewController: UIViewController {
     
     @IBOutlet weak var lblTaskDue: UILabel!
     
+    //Function: Mkaes rainbow text likes client want
+    
+    func rainbowNumber(title: String, number: Int) -> NSAttributedString {
+        
+        let fullText = NSMutableAttributedString(
+            string: "\(title)\n"
+        )
+        
+        let numberText = String(number)
+        
+        let colours: [UIColor] = [
+            .systemRed,
+            .systemOrange,
+            .systemYellow,
+            .systemGreen,
+            .systemCyan,
+            .systemBlue,
+            .systemPurple
+        ]
+        
+        for (index, character) in numberText.enumerated() {
+            
+            let colouredNumber = NSAttributedString(
+                string: String(character),
+                attributes: [
+                    .foregroundColor: colours[index % colours.count]
+                ]
+            )
+            
+            fullText.append(colouredNumber)
+        }
+        
+        return fullText
+    }
+    
     //Funtion: Will calualte the integars requried to be presented on the homepage
     
     func taskStatistics() {
         
-    /*
-      SOURCE: https://chatgpt.com/share/6a6f3f4d-e988-83ec-baf6-953a355ed006
-
-       WHY: Tried to make a loop for idenifying taks due in a week based on daysAmount but relaised that each week it changs.
-     
-       MODIFIED: Copied some. Also used it as refernce to then help me reach the code also using other examples.
-     */
-        
-        for newTask in tasks {
-            let daysAmount = Calendar.current.dateComponents(
-                [.day],
-                from: Date(),
-                to: newTask.dueDate
-            ).day ?? 0
-
-            if daysAmount >= 0 && daysAmount <= 7 {
-                tasksDueWeek += 1
-            }
-        }
-        
         /*
-          SOURCE: https://chatgpt.com/share/6a6f3f4d-e988-83ec-baf6-953a355ed006
-
-           WHY: Tried to made a for loop for idenifying taks due today based on daysAmount but had and error and couldn't figure out why
-
-           MODIFIED: Used chat code to helpo me adpat the code in to simular code i used
-         */
-        
-        for NewTask in tasks {
-            if let date = NewTask.completedDate,
-               Calendar.current.isDateInToday(date) {
-                
-                // varaible increases by one integar as a task is complted that day
-                tasksDoneDay += 1
-            }
-        }
-        
-        /*
-          SOURCE: https://chatgpt.com/share/6a6f3f4d-e988-83ec-baf6-953a355ed006
-
-           WHY: Tried to make a loop for idenifying taks due in a week based on daysAmount but relaised that each week it changs.
+         SOURCE: https://chatgpt.com/share/6a6f3f4d-e988-83ec-baf6-953a355ed006
          
-           MODIFIED: Used chat code to help me play alonhg with some other refences i had from orvious codes to create this
+         WHY: Tried to make a loop for idenifying taks due in a week based on daysAmount but relaised that each week it changs.
+         
+         MODIFIED: Copied some. Also used it as refernce to then help me reach the code also using other examples.
          */
         
-        let calendar = Calendar.current
-
-        guard let startOfWeek = calendar.dateInterval(
-            of: .weekOfYear,
-            for: Date()
-        )?.start else {
-            return
-        }
-
-        guard let endOfWeek = calendar.date(
-            byAdding: .day,
-            value: 7,
-            to: startOfWeek
-        ) else {
-            return
-        }
-
-        for newTask in tasks {
-
-            if let completedDate = newTask.completedDate {
-
-                if completedDate >= startOfWeek &&
-                   completedDate < endOfWeek {
-
-                    // varaible increases in one integar as another task is complted that week
-                    tasksDoneWeek += 1
+        // Function: Calculates task statistics
+            
+            // Reset statistics each time homepage opens
+            numtasks = 0
+            tasksDueWeek = 0
+            tasksDoneDay = 0
+            tasksDoneWeek = 0
+            
+            
+            // --------------------------------
+            // TOTAL NUMBER OF ACTIVE TASKS
+            // --------------------------------
+            
+            numtasks = tasks.count
+            
+            
+            // --------------------------------
+            // TASKS DUE WITHIN ONE WEEK
+            // --------------------------------
+            
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            
+            for newTask in tasks {
+                
+                let dueDate = calendar.startOfDay(
+                    for: newTask.dueDate
+                )
+                
+                let daysAmount = calendar.dateComponents(
+                    [.day],
+                    from: today,
+                    to: dueDate
+                ).day ?? 0
+                
+                
+                // Due today through next 7 days
+                if daysAmount >= 0 &&
+                    daysAmount <= 7 {
+                    
+                    tasksDueWeek += 1
                 }
             }
+            
+            
+            // --------------------------------
+            // TASKS COMPLETED TODAY
+            // --------------------------------
+            
+            for newTask in completedTasks {
+                
+                if let date = newTask.completedDate,
+                   calendar.isDateInToday(date) {
+                    
+                    tasksDoneDay += 1
+                }
+            }
+            
+            
+            // --------------------------------
+            // TASKS COMPLETED THIS WEEK
+            // --------------------------------
+            
+            guard let startOfWeek = calendar.dateInterval(
+                of: .weekOfYear,
+                for: Date()
+            )?.start else {
+                return
+            }
+            
+            
+            guard let endOfWeek = calendar.date(
+                byAdding: .day,
+                value: 7,
+                to: startOfWeek
+            ) else {
+                return
+            }
+            
+            
+            for newTask in completedTasks {
+                
+                if let completedDate =
+                    newTask.completedDate {
+                    
+                    if completedDate >= startOfWeek &&
+                        completedDate < endOfWeek {
+                        
+                        tasksDoneWeek += 1
+                    }
+                }
+            }
+            
+            
+            // --------------------------------
+            // DISPLAY STATISTICS
+            // --------------------------------
+            
+            lblCompletedDay.attributedText =
+            rainbowNumber(
+                title: "Task completed today:",
+                number: tasksDoneDay
+            )
+            
+            
+            lblCompletedWeek.attributedText =
+            rainbowNumber(
+                title: "Task completed this week:",
+                number: tasksDoneWeek
+            )
+            
+            
+            lblTaskDueWeek.attributedText =
+            rainbowNumber(
+                title: "Tasks due this week:",
+                number: tasksDueWeek
+            )
+            
+            
+            lblTaskDue.attributedText =
+            rainbowNumber(
+                title: "Tasks due:",
+                number: numtasks
+            )
         }
-
-        //messages to be showed to users based on claution of task staitsics
-        lblCompletedDay.text = "Task completed today: \(tasksDoneDay)"
-        lblCompletedWeek.text = "Task completed this week: \(tasksDoneWeek)"
-        lblTaskDueWeek.text = "Tasks due this week: \(tasksDueWeek)"
-        lblTaskDue.text = "Task due this week: \(numtasks)"
-        
-        
     }
-}
+

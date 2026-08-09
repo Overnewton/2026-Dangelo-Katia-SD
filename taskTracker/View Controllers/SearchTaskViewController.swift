@@ -13,6 +13,7 @@ class SearchTaskViewController: UIViewController, UITableViewDelegate, UITableVi
     //array is choosen as data type as all the searched tasks needs to be stored seperstly from NewTask to be displayed on tabelview
     var filteredTasks: [NewTask] = []
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -22,6 +23,13 @@ class SearchTaskViewController: UIViewController, UITableViewDelegate, UITableVi
         tblSearch.dataSource = self
         srhTask.delegate = self
         filteredTasks = tasks.self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        filteredTasks = tasks
+        tblSearch.reloadData()
     }
     
     //MARK: INTERFACE CONTROLS
@@ -54,6 +62,79 @@ class SearchTaskViewController: UIViewController, UITableViewDelegate, UITableVi
       MODIFIED: copied some code and some i used as refernce to adoat to simlaur ocde i had already
      
      */
+
+    //alert for swipe to delete
+    func alertCompleted(message: String, position: Int) {
+
+        let alert = UIAlertController(
+            title: "Warning",
+            message: message,
+            preferredStyle: .alert
+        )
+
+        let yesAction = UIAlertAction(title: "Yes", style: .default) { _ in
+
+            // Get task from SEARCH results
+            let taskToDelete = self.filteredTasks[position]
+
+            // Mark as completed
+            taskToDelete.isCompleted = true
+            taskToDelete.completedDate = Date()
+
+            // Save completed task
+            completedTasks.append(taskToDelete)
+
+            // Find SAME task in main tasks array
+            if let taskPosition = tasks.firstIndex(where: {
+                $0 === taskToDelete
+            }) {
+                tasks.remove(at: taskPosition)
+            }
+
+            // Remove from search results
+            self.filteredTasks.remove(at: position)
+
+            self.tblSearch.reloadData()
+
+            self.alertPopup(
+                message: "Task completed successfully"
+            )
+        }
+
+
+        let noAction = UIAlertAction(title: "No", style: .destructive) { _ in
+
+            let taskToDelete = self.filteredTasks[position]
+
+            // Find SAME task in main tasks array
+            if let taskPosition = tasks.firstIndex(where: {
+                $0 === taskToDelete
+            }) {
+                tasks.remove(at: taskPosition)
+            }
+
+            // Remove from search results
+            self.filteredTasks.remove(at: position)
+
+            self.tblSearch.reloadData()
+
+            self.alertPopup(
+                message: "Task deleted successfully"
+            )
+        }
+
+
+        let cancelAction = UIAlertAction(
+            title: "Cancel",
+            style: .cancel
+        )
+
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
     
     /*
      Tablview funtions 
@@ -175,12 +256,19 @@ class SearchTaskViewController: UIViewController, UITableViewDelegate, UITableVi
      Function: Swipe to delete for tableview cells
      */
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        
+    func tableView(
+        _ tableView: UITableView,
+        commit editingStyle: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
+
         if editingStyle == .delete {
-              
-            alert(message: "Are you sure you want to delete this task?", position: indexPath.row)
-          }
-      }
+
+            alertCompleted(
+                message: "Have you completed this task?",
+                position: indexPath.row
+            )
+        }
+    }
     
 }

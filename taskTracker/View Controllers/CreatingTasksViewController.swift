@@ -173,7 +173,12 @@ class CreatingTasksViewController: UIViewController {
                 
                 
                 //date range check. Checks if the date inputted is greater than or equal to current date.
-                if dteDueDate.date  >= Date() {
+                let calendar = Calendar.current
+
+                let today = calendar.startOfDay(for: Date())
+                let selectedDate = calendar.startOfDay(for: dteDueDate.date)
+
+                if selectedDate >= today {
                     
                     print("dteDueDate is valid")
                            
@@ -205,6 +210,14 @@ class CreatingTasksViewController: UIViewController {
         
         // if validation passed by returning true, then new object is created using input, checked to see if already exists in array, then depening on outcome of exience check might be added to task array
         if taskValidation() == true {
+            
+            if TaskManager.shared.categories.isEmpty {
+                
+                lblValidationMessage.text = "Please create a category before creating a task."
+                lblValidationMessage.textColor = .systemRed
+                
+                return
+            }
             
             // Get the category selected in the picker
                 let selectedRow = pvCategory.selectedRow(inComponent: 0)
@@ -360,12 +373,10 @@ extension CreatingTasksViewController: UIPickerViewDelegate {
      - String: What text goes in the actual picker for user to choose
      */
 
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-
-        if deleteInputValidation < TaskManager.shared.categories.count else {
-            return nil
-        }
-
+    func pickerView(_ pickerView: UIPickerView,
+                    titleForRow row: Int,
+                    forComponent component: Int) -> String? {
+        
         return TaskManager.shared.categories[row].name
     }
 }

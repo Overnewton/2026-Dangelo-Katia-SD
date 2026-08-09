@@ -11,12 +11,15 @@ class AlertsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tblAlerts.delegate = self
         tblAlerts.dataSource = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         tblAlerts.reloadData()
-    
-        // Do any additional setup after loading the view.
     }
     
 
@@ -32,7 +35,7 @@ class AlertsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     /*
-    funtion to count how mnay cells is need for tableview
+    funtion to count hoe mnay cells is need for tableview
      
      Parameters:
      - _ tableView: UITableView is getting used
@@ -65,10 +68,39 @@ class AlertsViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
         let task = dueAlerts[indexPath.row]
 
-        cell.textLabel?.text = task.taskName
-        cell.detailTextLabel?.text = "\(task.dueDate)"
+        // Format date in Australian format
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_AU")
+        dateFormatter.dateFormat = "dd MMMM yyyy"
+
+        let formattedDate = dateFormatter.string(from: task.dueDate)
+
+        // Display everything on one line
+        cell.textLabel?.text = "\(task.taskName) due on \(formattedDate)"
 
         return cell
     }
     
+    /*
+     Function:  Swipe to delete for tableview cells
+     
+     parametrs:
+     - _tableView: what UITableView needs searching
+     -commit editingStyle: swiping action
+     - forRowAt: the index row of tableview that got action happened
+     
+     */
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+       
+            
+        if editingStyle == .delete {
+               
+               dueAlerts.remove(at: indexPath.row)
+               
+               tableView.reloadData()
+           }
+       }
+            
+
 }

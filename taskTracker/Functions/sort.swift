@@ -116,48 +116,43 @@ func quickSort(array: [NewTask], by: String) -> [NewTask] {
 func selectionSort(array: [NewTask], by: String) -> [NewTask] {
     
     if array.count > 1 {
-
+        
         var arr = array
-
+        
         for x in 0 ..< arr.count - 1 {
-
+            
             var lowest = x
-
+            
             for y in x + 1 ..< arr.count {
                 
-                //sort by date
+                // Sort by date
                 if by == "date" {
                     
                     if arr[y].dueDate < arr[lowest].dueDate {
-                        
                         lowest = y
                     }
+                }
+                
+                // Sort by category
+                else if by == "category" {
                     
-                    else {
-                        if arr[y].dueDate < arr[lowest].dueDate {
-                            
-                            lowest = y
-                        }
+                    if arr[y].category.name < arr[lowest].category.name {
+                        lowest = y
                     }
                 }
-                
-                
-                
-                
-                if x != lowest {
-                    
-                    arr.swapAt(x, lowest)
-                    
-                }
             }
-    }
-
+            
+            if x != lowest {
+                arr.swapAt(x, lowest)
+            }
+        }
+        
         return arr
-
+        
     } else {
-
-    return array
-
-    }}
+        
+        return array
+    }
+}
 
 
